@@ -1,0 +1,71 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tutanak"
+version = "0.1.0"
+description = "Local-first meeting memory: records audio and slides, takes notes in the background, and lets you rewind any past meeting. Nothing leaves your machine."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+authors = [{ name = "Şahapoğuz Alşan" }]
+keywords = ["meeting", "transcription", "whisper", "local-first", "privacy", "ollama", "notes"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "pydantic>=2.7",
+    "httpx>=0.27",
+    "numpy>=1.26",
+    "pillow>=10.1",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+# Live capture: system audio (loopback) + microphone + screen.
+capture = ["soundcard>=0.4.4", "mss>=9.0"]
+# Speech-to-text.
+asr = ["faster-whisper>=1.1"]
+# Slide text. On Windows the built-in OCR is used when its packages are present.
+ocr = [
+    "rapidocr-onnxruntime>=1.4",
+    "winrt-runtime>=3.0; sys_platform == 'win32'",
+    "winrt-Windows.Media.Ocr>=3.0; sys_platform == 'win32'",
+    "winrt-Windows.Graphics.Imaging>=3.0; sys_platform == 'win32'",
+    "winrt-Windows.Storage.Streams>=3.0; sys_platform == 'win32'",
+    "winrt-Windows.Globalization>=3.0; sys_platform == 'win32'",
+    "winrt-Windows.Foundation>=3.0; sys_platform == 'win32'",
+    "winrt-Windows.Foundation.Collections>=3.0; sys_platform == 'win32'",
+]
+# NVIDIA GPU runtime libraries for faster-whisper (CUDA 12 / cuDNN 9).
+cuda = ["nvidia-cublas-cu12", "nvidia-cudnn-cu12>=9,<10"]
+all = ["tutanak[capture,asr,ocr]"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[project.scripts]
+tutanak = "tutanak.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tutanak"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI declares request parts as argument defaults.
+extend-immutable-calls = ["fastapi.File", "fastapi.Form"]

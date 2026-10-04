@@ -1,0 +1,23 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local tooling
+.claude/
+.vscode/
+.idea/
+
+# Never commit recordings
+*.pcm
+*.wav
+*.m4a
+*.mp4
+*.mkv
+!docs/**
